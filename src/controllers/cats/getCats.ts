@@ -1,17 +1,21 @@
 import { Request, Response } from "express";
-import cats from '../../data/cats';
-import { response } from "../../helpers";
+import { response, getAllCats } from "../../helpers";
 import { logger } from "../../logger";
 
-export default (req: Request, res: Response) => {
+export default async (req: Request, res: Response) => {
     const tags = ['get-cats'];
     try {
-        setTimeout(() => {
-            // using setTimeout to simulate a async process e.g. reading from database.
-            res.json(response(true, "CATS FOUND.", cats));
-            // add useful log
-            logger.info('Cats found.', { tags: [...tags, 'cats-found'] })
-        }, Math.random() * 1000);
+        const cats = await getAllCats();
+        const catsFound = cats.length > 0;
+
+        if (catsFound) {
+          res.json(response(true, "CATS FOUND.", cats));
+        } else {
+          res.json(response(false, "CATS NOT FOUND."));
+        }
+
+        // add useful log
+        logger.info(`Cats ${catsFound ? "found" : "not found"}.`);
     } catch (e) {
         res.json(response(false, "FAILED TO GET CATS."));
         logger.error(`Exception when getting cats, e: ${e}`, { tags: [...tags, 'exception', 'getCats-exception'] })
