@@ -1,0 +1,44 @@
+{
+  "name": "welovecats-cats-api",
+  "version": "1.0.0",
+  "description": "Official Cats API for WeLoveCats.com (fake-site)",
+  "main": "dist/server.js",
+  "scripts": {
+    "pm2": "pm2 start dist/server.js -i max --name welovecats-cats-api",
+    "setup-logs": "mkdir dist/logs -p",
+    "postinstall": "npm run build",
+    "start": "npm run serve",
+    "build": "tsc",
+    "serve": "node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon dist/server.js",
+    "watch": "tsc -w"
+  },
+  "author": "Bakani ZM Pilime <bzmpilime@gmail.com>",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.7",
+    "tsc": "^1.20150623.0",
+    "tslint": "^5.11.0",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {
+    "@types/bull": "^3.4.3",
+    "@types/express": "^4.16.0",
+    "@types/mongoose-paginate": "^5.0.6",
+    "@types/redis": "^2.8.8",
+    "@types/winston": "^2.4.4",
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.3",
+    "bull": "^3.5.2",
+    "cors": "^2.8.5",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "mongoose": "^5.3.15",
+    "mongoose-paginate": "^5.0.3",
+    "paynow": "^1.0.3",
+    "redis": "^2.8.0",
+    "redis-json": "^2.2.2",
+    "winston": "^3.1.0"
+  }
+}

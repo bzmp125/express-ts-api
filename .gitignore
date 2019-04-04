@@ -1,0 +1,6 @@
+# created by gitignorer
+# profile used: node
+node_modules/
+*.log
+dist/*
+.env

@@ -1,0 +1,21 @@
+image: node:9
+clone:
+  depth: full
+pipelines:
+  # default:
+  #   - step:
+  #       script:
+  #         - npm install # add test
+  branches:
+    master:
+      - step:
+          caches:
+            - node
+          name: Install
+          script:
+            - npm install # add test
+      - step:
+          name: Deploy to Production
+          deployment: production
+          script:
+            - cat bash ./deploy-production.sh | ssh $USER@$PROD_HOST
