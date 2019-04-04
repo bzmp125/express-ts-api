@@ -1,6 +1,7 @@
 import cats from "../../data/cats";
+import { Cat } from "../../interfaces";
 
-export default () => {
+export default (): Promise<Cat[]> => {
     return new Promise((resolve, reject) => {
         try {
             setTimeout(() => {
