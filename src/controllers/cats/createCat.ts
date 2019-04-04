@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { missingPars, response } from "../../helpers";
-import { logger } from "logger";
+import { logger } from "../../logger";
 import { Cat } from "../../interfaces";
 
 export default (req: Request, res: Response) => {
