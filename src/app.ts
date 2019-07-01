@@ -1,47 +1,84 @@
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import * as Dotenv from "dotenv";
+Dotenv.config();
 
-//route handlers
-import { catsRoutesHandler } from './routes'
-import { response } from "./helpers";
+import * as Compression from "compression";
+import * as Express from "express";
+import { Request, Response, NextFunction } from "express";
+import * as Helmet from "helmet";
+import * as Cors from "cors";
+import * as Mongoose from "mongoose";
+import * as BodyParser from "body-parser";
+import AdminRouter from "./routes/admin";
+import AffiliatesRouter from "./routes/affiliates";
+import RunnersRouter from "./routes/runners";
+import UserRouter from "./routes/users";
+import { dbUrl as DbURL } from "./settings";
+import { logger, response } from "./helpers";
+import { init as RabbotInit } from "./services/rabbitmq";
 
-class App {
+const app = Express();
+const tags = ["app"];
 
-    public app: express.Application;
+// Middleware
+// Using helmet per best practise: https://expressjs.com/en/advanced/best-practice-security.html#use-helmet
+app.use(Helmet());
+// Using gzip compression per best practise: https://expressjs.com/en/advanced/best-practice-performance.html#use-gzip-compression
+app.use(Compression());
+// use cors
+app.use(
+  Cors({
+    allowedHeaders: "Content-Type",
+    methods: "GET,HEAD,PUT,POST,DELETE,OPTIONS",
+    origin: "*"
+  })
+);
 
-    constructor() {
-        this.app = express();
-        this.config();
-    }
+// use body parser
+app.use(BodyParser.json());
 
-    private config(): void{
-        // support application/json type post data
-        this.app.use(bodyParser.json());
-        // support application/x-www-form-urlencoded post data
-        this.app.use(bodyParser.urlencoded({ extended: false }));
-        // setup cors
-        this.app.use(function (req, res, next) {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Access-Control-Allow-Methods', '*');
-            res.setHeader('Access-Control-Allow-Headers', '*');
-            // res.setHeader('Access-Control-Allow-Credentials', true);
-            next();
-        });
-        // routes
-        this.setupRoutes();
+// establish db connection then set routes
 
-        // 404
-        this.app.use((
-            _req: express.Request,
-            _res: express.Response,
-            next: express.NextFunction
-          ) => {
-            _res.status(404).json(response(false, "ROUTE NOT FOUND."));
-        })
-    }
-    private setupRoutes() {
-        this.app.use('/cats', catsRoutesHandler);
-    }
-}
+Mongoose.connect(
+  DbURL,
+  { useNewUrlParser: true }
+)
+  .then(() => {
+    logger.info("Connected to DB", {
+      tags: `${[...tags, "database-connected"]}`
+    });
+  })
+  .catch(err => {
+    logger.info(`Failed to Connect to DB ${err}`, {
+      tags: `${[...tags, "database-connection-failed"]}`
+    });
+  });
 
-export default new App().app;
+RabbotInit();
+
+app.use("/admin", AdminRouter);
+app.use("/user", UserRouter);
+app.use("/affiliates", AffiliatesRouter);
+app.use("/runners", RunnersRouter);
+
+// 404 - error handler
+// tslint:disable:variable-name
+app.use((_req: Express.Request, _res: Express.Response) => {
+  _res.status(404).json(response(false, "ROUTE NOT FOUND."));
+});
+
+// 500 - error handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  // Checking if headers sent per recommendation: https://expressjs.com/en/guide/error-handling.html
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  // set locals, only providing error in development.
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  res.status(err.status || 500);
+  res.send();
+});
+
+export default app;
