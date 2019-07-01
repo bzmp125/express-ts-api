@@ -1,1 +1,1 @@
-export { default as catsRoutesHandler } from './cats';
+export { default as adminRoutesHandler } from './admin';

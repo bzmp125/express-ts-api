@@ -1,8 +1,8 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
-
+import * as passport from 'passport';
 //route handlers
-import { catsRoutesHandler } from './routes'
+import { adminRoutesHandler } from './routes'
 import { response } from "./helpers";
 
 class App {
@@ -19,6 +19,8 @@ class App {
         this.app.use(bodyParser.json());
         // support application/x-www-form-urlencoded post data
         this.app.use(bodyParser.urlencoded({ extended: false }));
+
+        this.app.use(passport.initialize());
         // setup cors
         this.app.use(function (req, res, next) {
             res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,7 +42,7 @@ class App {
         })
     }
     private setupRoutes() {
-        this.app.use('/cats', catsRoutesHandler);
+        this.app.use('/admin', adminRoutesHandler);
     }
 }
 
