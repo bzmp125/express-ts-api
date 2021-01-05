@@ -28,7 +28,7 @@
     "@types/mongoose-paginate": "^5.0.6",
     "@types/redis": "^2.8.8",
     "@types/winston": "^2.4.4",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.18.3",
     "bull": "^3.5.2",
     "cors": "^2.8.5",
